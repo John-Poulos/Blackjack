@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <queue>
+#include <vector>
 
 int main()
 {   
@@ -24,6 +25,12 @@ int main()
                 int random = rand();
                 return random;
             }                  
+
+            //overload the less than comparator to allow sort() to work
+            bool operator<(const card&rhs) 
+            {
+                return (order_num < rhs.order_num);       
+            }
 
             //card constructor
             card(std::string p_name, std::string p_suit, std::int16_t p_value) 
@@ -154,10 +161,38 @@ int main()
     deck.push_back(king_H);
     deck.push_back(king_C);
     deck.push_back(king_S);
-   
-    for(auto &i : deck)
+            
+    std::sort(deck.begin(), deck.end());
+    std::queue<card> shoe;
 
 
+    std::vector<card>temp;
+
+    for (int i = 0; i < deck.size()-1; i++)
+    {
+        if (temp.empty())
+        {
+            temp.push_back(deck[i]);
+        }
+        else
+        {
+            if (temp[i-1].order_num > deck[i].order_num)
+            {
+                temp.push_back(temp[i-1]);
+                temp[i-1] = deck[i];
+            }
+            else 
+            {
+                temp.push_back(deck[i]);
+            }
+        }
+    }
+        //std::cout << i.order_num << std::endl;
+        //todo - sort deck by ascending or descending into new structure called shoe
+    for (int i = 0; i < temp.size() - 1; i++)
+    {
+        std::cout << temp[i].order_num << temp[i].name << " of " << temp[i].suit << std::endl;
+    }
 
     //Copy deck into a que for game play
     //std::queue<card> deck;
