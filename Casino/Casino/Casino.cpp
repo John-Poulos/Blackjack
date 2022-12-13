@@ -41,92 +41,12 @@ int main()
             }                       
     };
 
-    //Player
-    class Player
-    {
-        public:
-            std::string name;
-            std::int16_t score;
-            std::int16_t handValue;
-            std::int16_t numOfCardsDealt;
-            std::vector<card> hand;
-
-            Player()
-            {
-                name = "";
-                score = 0;
-                handValue = 0;
-                numOfCardsDealt = 0;
-                hand.empty();
-
-            }
-
-            void updatePlayerHandValue() 
-            {
-                if (!hand.empty())
-                {
-                    numOfCardsDealt = hand.size();
-                    for (int i = 0; i < numOfCardsDealt; i++)
-                    {
-                        handValue += hand[i].value;
-                    }
-                }
-                 
-            };
-            void Status()
-            {
-                updatePlayerHandValue();
-                std::cout << "Player: " << name << "\t\t" << "Hand Value: " << handValue << "\tCards in hand: " << numOfCardsDealt << "\t";
-                for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t"; }
-                std::cout << std::endl;
-            };
-    };
-
-    //Dealer
-    class Dealer 
-    {
-        public:
-            std::int16_t score;
-            std::int16_t handValue;
-            std::int16_t numOfCardsDealt;
-            std::vector<card> hand;
-            
-            Dealer() 
-            {
-                score = 0;
-                handValue = 0;
-                numOfCardsDealt = 0;
-                hand.empty();
-            }
-
-            void updateDealerHandValue()
-            {
-                if (!hand.empty())
-                {
-                    numOfCardsDealt = hand.size();
-                    for (int i = 0; i < numOfCardsDealt; i++)
-                    {
-                        handValue += hand[i].value;
-                    }
-                    
-                    
-                }
-            };
-            void Status()
-            {
-                updateDealerHandValue();
-                std::cout << "Dealer: CPU" << "\t\tHand Value: " << handValue << "\tCards in hand: " << numOfCardsDealt << "\t";
-                for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t  "; }
-                std::cout << std::endl;
-            };
-    };
-
     //Deck
     std::vector<card> deck;
-    card ace_D("Ace", "Diamonds", 1);
-    card ace_H("Ace", "Hearts", 1);
-    card ace_C("Ace", "Clubs", 1);
-    card ace_S("Ace", "Spades", 1);
+    card ace_D("Ace", "Diamonds", 11);
+    card ace_H("Ace", "Hearts", 11);
+    card ace_C("Ace", "Clubs", 11);
+    card ace_S("Ace", "Spades", 11);
     deck.push_back(ace_D);
     deck.push_back(ace_H);
     deck.push_back(ace_C);
@@ -192,7 +112,7 @@ int main()
     card eight_S("Eight", "Spades", 8);
     deck.push_back(eight_D);
     deck.push_back(eight_H);
-    deck.push_back(eight_C); 
+    deck.push_back(eight_C);
     deck.push_back(eight_S);
 
     card nine_D("Nine", "Diamonds", 9);
@@ -239,72 +159,310 @@ int main()
     deck.push_back(king_H);
     deck.push_back(king_C);
     deck.push_back(king_S);
-            
+
     std::sort(deck.begin(), deck.end());
     //In future add more decks - meant to decrease ability to count cards by adding more decks to dealer's shoe 
     std::queue<card> shoe;
 
 
     std::vector<card>temp;
-    /*
-    for (int i = 0; i < deck.size()-1; i++)
-    {
-        if (temp.empty())
-        {
-            temp.push_back(deck[i]);
-        }
-        else
-        {
-            if (temp[i-1].order_num > deck[i].order_num)
-            {
-                temp.push_back(temp[i-1]);
-                temp[i-1] = deck[i];
-            }
-            else 
-            {
-                temp.push_back(deck[i]);
-            }
-        }
-    }*/
-        //std::cout << i.order_num << std::endl;
-        
+
     for (int i = 0; i < deck.size() - 1; i++)
     {
         //std::cout << temp[i].order_num << temp[i].name << " of " << temp[i].suit << std::endl;
         //std::cout << "DECK: " << deck[i].name << " of " << deck[i].suit << std::endl;
         shoe.push(deck[i]);
     }
+        
+    //Dealer
+    class Dealer
+    {
+    public:
+        std::int16_t score;
+        std::int16_t handValue;
+        std::int16_t numOfCardsDealt;
+        std::vector<card> hand;
+
+        Dealer()
+        {
+            score = 0;
+            handValue = 0;
+            numOfCardsDealt = 0;
+            hand.clear();
+        }
+
+        void dealerWin()
+        {
+            score += 1;
+            hand.clear();
+        }
+
+        void dealerLose()
+        {
+            score -= 1;
+            hand.clear();
+        }
+
+        void dealerDealOne(std::queue<card>& shoe)
+        {
+            hand.push_back(shoe.front());
+            shoe.pop();
+        }
+
+        void getDealerHandValue()
+        {
+            if (!hand.empty())
+            {
+                handValue = 0;
+                numOfCardsDealt = hand.size();
+                for (int16_t i = 0; i < numOfCardsDealt; i++)
+                {
+                    handValue += hand[i].value;
+                }
+            }
+        };
+
+        void updateDealerHandValue()
+        {
+            getDealerHandValue();
+            int aceCount = 0;
+
+            if (handValue < 21)
+            {
+                handValue = handValue;
+            }
+
+            else if (hand.size() >= 3 && handValue > 21)
+            {
+                for (int i = 0; i < hand.size() - 1; i++)
+                {
+                    if (hand[i].name == "Ace")
+                    {
+                        aceCount += 1;
+                    }
+                }
+                if (aceCount == 0)
+                {
+                    dealerLose();
+                }
+                if (aceCount == 1)
+                {
+                    for (int i = 0; i < hand.size() - 1; i++)
+                    {
+                        if (hand[i].name == "Ace")
+                        {
+                            hand[i].value = 1;
+                        }
+                    }
+                    if (aceCount >= 2)
+                    {
+                        for (int i = 0; i < hand.size() - 1; i++)
+                        {
+                            if (hand[i].name == "Ace")
+                            {
+                                hand[i].value = 1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        void Status()
+        {
+            updateDealerHandValue();
+            std::cout << "Dealer: CPU" << "\t\tHand Value: " << handValue << "\tCards in hand: " << numOfCardsDealt << "\t";
+            for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t"; }
+            std::cout << std::endl;
+        };
+    };
+
+    Dealer dealer;
+    
+    //Player
+    class Player
+    {
+        public:
+            std::string name;
+            std::int16_t score;
+            std::int16_t handValue;
+            std::int16_t numOfCardsDealt;
+            std::vector<card> hand;
+
+            Player()
+            {
+                name = "";
+                score = 0;
+                handValue = 0;
+                numOfCardsDealt = 0;
+                hand.clear();
+
+            }
+
+            void playerWin(Dealer &dealer)
+            {
+                score += 1;
+                hand.clear();
+                dealer.dealerLose();
+            };
+
+            void playerLose(Dealer& dealer)
+            {
+                score -= 1;
+                hand.clear();  
+                dealer.dealerWin();
+            };         
+
+            void playerDealOne(std::queue<card> &shoe)
+            {
+                hand.push_back(shoe.front());
+                shoe.pop();
+            }
+
+            void playerHit(std::queue<card>& shoe)
+            {
+                std::string userInput;
+                std::string hit = "hit";
+                std::string stay = "stay";
+
+                std::cout << "Does " << name << " want another card?" << std::endl;
+                std::cout << "Enter hit for another card or stay: \n";
+                std::cin >> userInput;
+                
+                if (userInput == hit)
+                {
+                    if (!shoe.empty())
+                    {
+                        playerDealOne(shoe);
+                    }
+                }
+                else if (userInput == stay)
+                {
+
+                }
+                else
+                {
+                    std::cout << "Invalid entry, try again.\n";
+                    playerHit(shoe);
+                }
+            };
+
+            void getPlayerHandValue()
+            {
+                if (!hand.empty())
+                {
+                    handValue = 0;
+                    numOfCardsDealt = hand.size();
+                    for (int16_t i = 0; i < numOfCardsDealt; i++)
+                    {
+                        handValue += hand[i].value;
+                    }
+                }
+            };
+
+            void updatePlayerHandValue(Dealer &dealer) 
+            {
+                getPlayerHandValue();
+                int aceCount = 0;
+                
+                if (handValue < 21)
+                {
+                    handValue = handValue;
+                }
+
+                if (handValue == 21)
+                {
+                    playerWin(dealer);                    
+                }
+
+                else if (hand.size() >= 3 && handValue > 21)
+                {
+                    for (int i = 0; i < hand.size() - 1; i++)
+                    {
+                        if (hand[i].name == "Ace")
+                        {
+                            aceCount += 1;
+                        }
+                    }
+                    if (aceCount == 0)
+                    {
+                        playerLose(dealer);
+                    }
+                    if (aceCount == 1)
+                    {
+                        for (int i = 0; i < hand.size() - 1; i++)
+                        {
+                            if (hand[i].name == "Ace")
+                            {
+                                hand[i].value = 1;
+                                updatePlayerHandValue(dealer);
+                            }
+                        }
+                        if (aceCount >= 2)
+                        {
+                            for (int i = 0; i < hand.size() - 1; i++)
+                            {
+                                if (hand[i].name == "Ace")
+                                {
+                                    hand[i].value = 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+                 
+            
+            void Status(Dealer &dealer)
+            {
+                updatePlayerHandValue(dealer);
+                std::cout << "Player: " << name << "\t\t" << "Score: " << score << "\t" << "Hand Value: " << handValue << "\nCards in hand: " << numOfCardsDealt << "\t";
+                for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t"; }
+                std::cout << std::endl;
+            };
+    };
+
+    Player player;
+
+
 
     //void startGame();
     
     int dealCards = 2;
-    Dealer dealer;
-    Player player;
-
-    dealer.Status();
-    player.Status();
-
+    std::string userInput;
+    
     std::cout << "What is the player's name?";
     std::cin >> player.name;
 
     dealer.Status();
-    player.Status();
+    player.Status(dealer);
     
-    
-
         if (!shoe.empty())
         {
             for (int i = 0; i < dealCards; i++)
             {                
-                player.hand.push_back(shoe.front());
-                shoe.pop();
-                dealer.hand.push_back(shoe.front());
-                shoe.pop();
+                //player.hand.push_back(shoe.front());
+                //shoe.pop();
+                player.playerDealOne(shoe);
+                dealer.dealerDealOne(shoe);
             }
         };
 
+    dealer.Status();
+    player.Status(dealer);
+
+    while (true)//(player.handValue < dealer.handValue)
+    {
+        player.playerHit(shoe);
+
         dealer.Status();
-        player.Status();
+        player.Status(dealer);
+    }
+   
+    
 
 }
 
@@ -320,6 +478,7 @@ int main()
      * win: player wins if 21 and dealer is less, dealer uncovers 21 if they are dealt it on first two cards (natural - 10 valued card plus ace)
      * lose: either player or dealer exceeds 21
      * dealer restrictions: can not take another card if at 17 or greater
+     * Need to separate responsibilities with update and check for win status - causing conflict of updating information that is wiped clear
     */
   
     
