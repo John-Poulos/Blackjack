@@ -1,5 +1,4 @@
-// Casino.cpp : Building a BlackJack game to practice software engineering skills like kanban and iteration of work. General planning and refinement along the way.
-//
+// Casino: Building a BlackJack game to practice software engineering skills like kanban and iteration of work. General planning and refinement along the way.
 
 #include <iostream>
 #include <cstdlib>
@@ -39,13 +38,92 @@ int main()
                 suit = p_suit;
                 value = p_value;
                 order_num = random_value();
-            }     
+            }                       
+    };
+
+    //Player
+    class Player
+    {
+        public:
+            std::string name;
+            std::int16_t score;
+            std::int16_t handValue;
+            std::int16_t numOfCardsDealt;
+            std::vector<card> hand;
+
+            Player()
+            {
+                name = "";
+                score = 0;
+                handValue = 0;
+                numOfCardsDealt = 0;
+                hand.empty();
+
+            }
+
+            void updatePlayerHandValue() 
+            {
+                if (!hand.empty())
+                {
+                    numOfCardsDealt = hand.size();
+                    for (int i = 0; i < numOfCardsDealt; i++)
+                    {
+                        handValue += hand[i].value;
+                    }
+                }
+                 
+            };
+            void Status()
+            {
+                updatePlayerHandValue();
+                std::cout << "Player: " << name << "\t\t" << "Hand Value: " << handValue << "\tCards in hand: " << numOfCardsDealt << "\t";
+                for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t"; }
+                std::cout << std::endl;
+            };
+    };
+
+    //Dealer
+    class Dealer 
+    {
+        public:
+            std::int16_t score;
+            std::int16_t handValue;
+            std::int16_t numOfCardsDealt;
+            std::vector<card> hand;
+            
+            Dealer() 
+            {
+                score = 0;
+                handValue = 0;
+                numOfCardsDealt = 0;
+                hand.empty();
+            }
+
+            void updateDealerHandValue()
+            {
+                if (!hand.empty())
+                {
+                    numOfCardsDealt = hand.size();
+                    for (int i = 0; i < numOfCardsDealt; i++)
+                    {
+                        handValue += hand[i].value;
+                    }
                     
+                    
+                }
+            };
+            void Status()
+            {
+                updateDealerHandValue();
+                std::cout << "Dealer: CPU" << "\t\tHand Value: " << handValue << "\tCards in hand: " << numOfCardsDealt << "\t";
+                for (int i = 0; i < numOfCardsDealt; i++) { std::cout << hand[i].name << " of " << hand[i].suit << "\t  "; }
+                std::cout << std::endl;
+            };
     };
 
     //Deck
     std::vector<card> deck;
-    card ace_D("Ace", "Diamonds", 1);    
+    card ace_D("Ace", "Diamonds", 1);
     card ace_H("Ace", "Hearts", 1);
     card ace_C("Ace", "Clubs", 1);
     card ace_S("Ace", "Spades", 1);
@@ -163,11 +241,12 @@ int main()
     deck.push_back(king_S);
             
     std::sort(deck.begin(), deck.end());
+    //In future add more decks - meant to decrease ability to count cards by adding more decks to dealer's shoe 
     std::queue<card> shoe;
 
 
     std::vector<card>temp;
-
+    /*
     for (int i = 0; i < deck.size()-1; i++)
     {
         if (temp.empty())
@@ -186,21 +265,66 @@ int main()
                 temp.push_back(deck[i]);
             }
         }
-    }
+    }*/
         //std::cout << i.order_num << std::endl;
-        //todo - sort deck by ascending or descending into new structure called shoe
-    for (int i = 0; i < temp.size() - 1; i++)
+        
+    for (int i = 0; i < deck.size() - 1; i++)
     {
-        std::cout << temp[i].order_num << temp[i].name << " of " << temp[i].suit << std::endl;
+        //std::cout << temp[i].order_num << temp[i].name << " of " << temp[i].suit << std::endl;
+        //std::cout << "DECK: " << deck[i].name << " of " << deck[i].suit << std::endl;
+        shoe.push(deck[i]);
     }
 
-    //Copy deck into a que for game play
-    //std::queue<card> deck;
+    //void startGame();
+    
+    int dealCards = 2;
+    Dealer dealer;
+    Player player;
 
+    dealer.Status();
+    player.Status();
+
+    std::cout << "What is the player's name?";
+    std::cin >> player.name;
+
+    dealer.Status();
+    player.Status();
+    
+    
+
+        if (!shoe.empty())
+        {
+            for (int i = 0; i < dealCards; i++)
+            {                
+                player.hand.push_back(shoe.front());
+                shoe.pop();
+                dealer.hand.push_back(shoe.front());
+                shoe.pop();
+            }
+        };
+
+        dealer.Status();
+        player.Status();
+
+}
+
+
+    
+   
+
+
+    /* TODO - now have que full of cards 
+     * need to create player and dealer with some state (commence play, how many cards in hand to end deal?)    
+     * deal function - one card to each player and dealer before dealing second card
+     * sum function - sums total value - shown to player, dealers hidden
+     * win: player wins if 21 and dealer is less, dealer uncovers 21 if they are dealt it on first two cards (natural - 10 valued card plus ace)
+     * lose: either player or dealer exceeds 21
+     * dealer restrictions: can not take another card if at 17 or greater
+    */
   
     
 
-}
+
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
